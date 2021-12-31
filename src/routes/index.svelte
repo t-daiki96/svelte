@@ -3,24 +3,8 @@
 </script>
 
 <script lang="ts">
-	type Todo = {
-		id: number;
-		done: boolean;
-		description: string;
-	};
+	import { todos, Todo } from '../store/todoStore';
 	let uid = 1;
-	let todos: Todo[] = [
-		{
-			id: uid++,
-			done: false,
-			description: 'やること1'
-		},
-		{
-			id: uid++,
-			done: false,
-			description: 'やること2'
-		}
-	];
 	const add = (target: EventTarget) => {
 		if (!(target instanceof HTMLInputElement)) {
 			return;
@@ -28,19 +12,18 @@
 		if (!target.value) {
 			return;
 		}
-
-		todos = [...todos, { id: uid++, done: false, description: target.value }];
+		todos.set([...$todos, { id: uid++, done: false, description: target.value }]);
 		target.value = '';
 	};
 
 	const remove = (todo: Todo) => {
-		todos = todos.filter((t) => t !== todo);
+		todos.set($todos.filter((t) => t !== todo));
 	};
 
 	const update = (todo: Todo, done: boolean) => {
 		todo.done = done;
 		remove(todo);
-		todos = [...todos, todo];
+		todos.set([...$todos, todo]);
 	};
 </script>
 
@@ -52,7 +35,7 @@
 <input on:keydown={(e) => e.key === 'Enter' && add(e.target)} />
 
 <h2>todo</h2>
-{#each todos.filter((todo) => !todo.done) as todo (todo.id)}
+{#each $todos.filter((todo) => !todo.done) as todo (todo.id)}
 	<label>
 		<input type="checkbox" on:change={() => update(todo, true)} />
 		{todo.description}
@@ -61,7 +44,7 @@
 {/each}
 
 <h2>done</h2>
-{#each todos.filter((todo) => todo.done) as todo (todo.id)}
+{#each $todos.filter((todo) => todo.done) as todo (todo.id)}
 	<label>
 		<input type="checkbox" checked on:change={() => update(todo, false)} />
 		{todo.description}
