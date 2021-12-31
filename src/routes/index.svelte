@@ -3,8 +3,13 @@
 </script>
 
 <script lang="ts">
+	type Todo = {
+		id: number;
+		done: boolean;
+		description: string;
+	};
 	let uid = 1;
-	let todos = [
+	let todos: Todo[] = [
 		{
 			id: uid++,
 			done: false,
@@ -20,8 +25,22 @@
 		if (!(target instanceof HTMLInputElement)) {
 			return;
 		}
+		if (!target.value) {
+			return;
+		}
+
 		todos = [...todos, { id: uid++, done: false, description: target.value }];
 		target.value = '';
+	};
+
+	const remove = (todo: Todo) => {
+		todos = todos.filter((t) => t !== todo);
+	};
+
+	const update = (todo: Todo, done: boolean) => {
+		todo.done = done;
+		remove(todo);
+		todos = [...todos, todo];
 	};
 </script>
 
@@ -35,15 +54,17 @@
 <h2>todo</h2>
 {#each todos.filter((todo) => !todo.done) as todo (todo.id)}
 	<label>
-		<input type="checkbox" on:change={() => (todo.done = true)} />
+		<input type="checkbox" on:change={() => update(todo, true)} />
 		{todo.description}
+		<button on:click={() => remove(todo)}>remove</button>
 	</label>
 {/each}
 
 <h2>done</h2>
 {#each todos.filter((todo) => todo.done) as todo (todo.id)}
 	<label>
-		<input type="checkbox" checked on:change={() => (todo.done = false)} />
+		<input type="checkbox" checked on:change={() => update(todo, false)} />
 		{todo.description}
+		<button on:click={() => remove(todo)}>remove</button>
 	</label>
 {/each}
