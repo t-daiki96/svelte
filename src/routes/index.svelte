@@ -5,13 +5,22 @@
 <script lang="ts">
 	import { todos, Todo } from '../store/todoStore';
 	let uid = 1;
-	const add = (target: EventTarget) => {
+	const add = (
+		event: KeyboardEvent & {
+			currentTarget: EventTarget & HTMLInputElement;
+		}
+	) => {
+		const target = event.target;
+		if (event.isComposing) {
+			return;
+		}
 		if (!(target instanceof HTMLInputElement)) {
 			return;
 		}
 		if (!target.value) {
 			return;
 		}
+
 		todos.set([...$todos, { id: uid++, done: false, description: target.value }]);
 		target.value = '';
 	};
@@ -32,7 +41,7 @@
 </svelte:head>
 
 <h2>input</h2>
-<input on:keydown={(e) => e.key === 'Enter' && add(e.target)} />
+<input on:keydown={(e) => e.key === 'Enter' && add(e)} />
 
 <h2>todo</h2>
 {#each $todos.filter((todo) => !todo.done) as todo (todo.id)}
